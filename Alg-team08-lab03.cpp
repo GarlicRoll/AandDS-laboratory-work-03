@@ -38,12 +38,19 @@ class Tree
     ~Tree();
     void MakeTree() // ввод — генерация дерева
     { root = MakeNode(0); }
+    void MakeTreeFromInt() // ввод — генерация дерева
+    {
+        //char input[32] = "1111111000111";
+        char input[32];
+        fgets(input, 32, stdin);
+        root = MakeTreeFromInt(input, 0); }
     bool exist() { return root != nullptr; } // проверка «дерево не пусто»
     int DFS(); // обход дерева «в глубину»
     int BFS(); // обход «в ширину»
     // рекурсивные функции
     void InOrder(Node*); // В глубину симметрия
     int GetMaxDepth(Node*);
+    Node * MakeTreeFromInt(char *, int);
     void OutTree(); // выдача на экран
 };
 
@@ -55,7 +62,8 @@ Tree :: ~Tree( ) { for(int i = 0; i < maxrow; ++i) delete [ ]SCREEN[ i ];
     delete [ ]SCREEN; delete root; }
 
 Node * Tree :: MakeNode(int depth)
-{ Node * v = nullptr;
+{ 
+    Node * v = nullptr;
     int Y = (depth < rand( )%4+1) && (num <= 'z');
     //Вариант: cout << "Node (" << num << ',' << depth << ")1/0: "; cin >> Y;
     if (Y) { // создание узла, если Y = 1
@@ -77,6 +85,7 @@ void Tree :: clrscr( )
 
 void Tree :: OutTree( )
 {   clrscr( );
+    
     OutNodes(root, 1, offset);
     for (int i = 0; i < maxrow; i++)
     { SCREEN[ i ][ 79 ] = 0;
@@ -93,6 +102,18 @@ void Tree :: OutNodes(Node * v, int r, int c)
         if (v->mdl) OutNodes(v->mdl, r + 1, c); //– средний сын (если нужно)
         if (v->rgt) OutNodes(v->rgt, r + 1, c + (offset >> r) - 2); //правый сын
     }
+}
+
+Node * Tree :: MakeTreeFromInt(char * input, int i)
+{   
+    Node * v = new Node;
+    
+    if (input[i * 3 + 1] == '1') v->lft = MakeTreeFromInt(input, i * 3 + 1); else v->lft = nullptr;
+    if (input[i * 3 + 2] == '1') v->mdl = MakeTreeFromInt(input, i * 3 + 2); else v->mdl = nullptr;
+    if (input[i * 3 + 3] == '1') v->rgt = MakeTreeFromInt(input, i * 3 + 3); else v->rgt = nullptr;
+
+    v->d = num++;
+    return v;
 }
 
 template <class Item> class STACK
@@ -205,15 +226,15 @@ int main()
     Tree Tr('a', 'z', 8);
     srand(time(nullptr));
     setlocale(LC_ALL, "Russian");
-    Tr.MakeTree( );
+    Tr.MakeTreeFromInt( );
     if(Tr.exist( )) {
     Tr.OutTree( );
-    cout << '\n' << "Обход в глубину: ";
+    cout << '\n' << "DFS: ";
     Tr.InOrder(Tr.root);
     n = Tr.GetMaxDepth(Tr.root->lft);
     //n = Tr.DFS();
-    cout << " Максимальная глубина = " << n;
+    cout << " Max depth = " << n;
     }
-    else cout << "Дерево пусто!";
-    cout << '\n' << "=== Конец ==="; cin.get( );
+    else cout << "Tree is empty!";
+    cout << '\n' << "=== END ==="; cin.get( );
 }
